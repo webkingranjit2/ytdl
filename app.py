@@ -17,11 +17,12 @@ def download():
     if not url:
         return jsonify({"success": False, "error": "URL missing"})
 
-    # yt-dlp options (নতুন User-Agent যোগ করা হয়েছে যাতে ব্লক না করে)
     ydl_opts = {
         'format': 'best' if mode == 'mp4' else 'bestaudio',
         'quiet': True,
         'no_warnings': True,
+        # কুকি ফাইল ব্যবহার করা হচ্ছে
+        'cookiefile': 'cookies.txt',
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
 
@@ -31,8 +32,7 @@ def download():
             video_url = info.get('url')
             return jsonify({"success": True, "download_url": video_url})
     except Exception as e:
-        # এরর মেসেজ ক্লিন করা হয়েছে
-        return jsonify({"success": False, "error": "YouTube blocked this request. Try again later."})
+        return jsonify({"success": False, "error": str(e)})
 
 if __name__ == "__main__":
     app.run()
