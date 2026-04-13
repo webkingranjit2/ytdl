@@ -3,163 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Video Downloader</title>
+    <title>Universal Downloader</title>
     <style>
-        :root {
-            --primary: #ff0000;
-            --dark: #121212;
-            --card: #1e1e1e;
-            --text: #ffffff;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--dark);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-        }
-
-        h1 { color: var(--primary); margin-bottom: 5px; font-size: 28px; }
-        p { color: #aaa; margin-bottom: 25px; font-size: 14px; }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #333;
-            border-radius: 10px;
-            background: #252525;
-            color: white;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus { border-color: var(--primary); }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-
-        .btn-mp4 { background-color: var(--primary); color: white; }
-        .btn-mp3 { background-color: #444; color: white; }
-        
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
-
-        #status {
-            margin-top: 25px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .loader {
-            display: none;
-            border: 4px solid #333;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
+        body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h1 { color: #ff0000; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; outline: none; }
+        .btn-group { display: flex; gap: 10px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .mp4 { background: #ff0000; color: white; }
+        .mp3 { background: #444; color: white; }
+        #status { margin-top: 20px; font-size: 14px; }
+        .loader { display: none; border: 3px solid #f3f3f3; border-top: 3px solid #ff0000; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .success-link {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
+        .dl-link { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>YT Downloader</h1>
-    <p>অ্যান্ড্রয়েড ও পিসির জন্য হাই-স্পিড ডাউনলোডার</p>
-    
-    <input type="text" id="videoUrl" placeholder="ইউটিউব ভিডিওর লিঙ্ক এখানে দিন...">
-    
-    <div class="btn-group">
-        <button class="btn-mp4" onclick="download('mp4')">Video (MP4)</button>
-        <button class="btn-mp3" onclick="download('mp3')">Audio (MP3)</button>
+    <div class="card">
+        <h1>YT Downloader</h1>
+        <input type="text" id="url" placeholder="Paste YouTube link here...">
+        <div class="btn-group">
+            <button class="mp4" onclick="startDownload('mp4')">Video (MP4)</button>
+            <button class="mp3" onclick="startDownload('mp3')">Audio (MP3)</button>
+        </div>
+        <div class="loader" id="loader"></div>
+        <div id="status"></div>
     </div>
 
-    <div class="loader" id="loader"></div>
-    <div id="status"></div>
-</div>
+    <script>
+        async function startDownload(mode) {
+            const url = document.getElementById('url').value;
+            const status = document.getElementById('status');
+            const loader = document.getElementById('loader');
 
-<script>
-    async function download(mode) {
-        const urlInput = document.getElementById('videoUrl');
-        const status = document.getElementById('status');
-        const loader = document.getElementById('loader');
+            if(!url) return alert("Please enter a link!");
 
-        if (!urlInput.value) {
-            alert("দয়া করে একটি সঠিক লিঙ্ক দিন!");
-            return;
-        }
+            status.innerHTML = "Processing...";
+            loader.style.display = "block";
 
-        status.innerHTML = "সার্ভার লিঙ্ক প্রসেস করছে... কিছুক্ষণ অপেক্ষা করুন।";
-        loader.style.display = "block";
-
-        try {
-            const response = await fetch('/download', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: urlInput.value, mode: mode })
-            });
-
-            const data = await response.json();
-
-            if (data.success && data.download_url) {
-                status.innerHTML = `
-                    <p style="color: #28a745;">ফাইল রেডি!</p>
-                    <a href="${data.download_url}" target="_blank" class="success-link">Download Now</a>
-                `;
-            } else {
-                status.innerHTML = `<p style="color: #ff4444;">এরর: ${data.error || "লিঙ্কটি কাজ করছে না।"}</p>`;
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url: url, mode: mode })
+                });
+                const result = await response.json();
+                if(result.success) {
+                    status.innerHTML = `<a href="${result.download_url}" target="_blank" class="dl-link">Download File</a>`;
+                } else {
+                    status.innerHTML = "Error: " + result.error;
+                }
+            } catch (err) {
+                status.innerHTML = "Server Error!";
+            } finally {
+                loader.style.display = "none";
             }
-        } catch (error) {
-            status.innerHTML = `<p style="color: #ff4444;">সার্ভার এরর! আবার চেষ্টা করুন।</p>`;
-        } finally {
-            loader.style.display = "none";
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
