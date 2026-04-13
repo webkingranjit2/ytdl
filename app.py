@@ -1,7 +1,6 @@
 import os
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, jsonify
 import yt_dlp
-import io
 
 app = Flask(__name__)
 
@@ -11,31 +10,27 @@ def index():
 
 @app.route('/download', methods=['POST'])
 def download():
-    url = request.form.get('url')
-    format_type = request.form.get('format') # mp4 or mp3
+    data = request.json
+    url = data.get('url')
+    mode = data.get('mode')
 
-    # ডাউনলোডের অপশনস
+    if not url:
+        return jsonify({"success": False, "error": "URL missing"})
+
+    # yt-dlp options (মেমোরিতে লিঙ্ক জেনারেট করার জন্য)
     ydl_opts = {
-        'format': 'bestaudio/best' if format_type == 'mp3' else 'best',
-        'outtmpl': '-', # সরাসরি মেমোরিতে ডাউনলোড করবে
-        'logtostderr': True,
+        'format': 'best' if mode == 'mp4' else 'bestaudio',
+        'quiet': True,
+        'no_warnings': True,
     }
-
-    if format_type == 'mp3':
-        ydl_opts['postprocessors'] = [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }]
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            video_url = info['url']
-            # সরাসরি ভিডিওর লিঙ্কে রিডাইরেক্ট করা সবচেয়ে সহজ উপায়
-            return f"<script>window.location.href='{video_url}';</script>"
+            video_url = info.get('url')
+            return jsonify({"success": True, "download_url": video_url})
     except Exception as e:
-        return f"Error: {str(e)}"
+        return jsonify({"success": False, "error": str(e)})
 
 if __name__ == "__main__":
     app.run()
