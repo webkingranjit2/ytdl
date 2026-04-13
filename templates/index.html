@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Downloader</title>
+    <title>YT Downloader</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        h1 { color: #ff0000; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; outline: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.8); border: 1px solid #333; }
+        h2 { color: #ff0000; margin-bottom: 5px; }
+        p { color: #888; font-size: 13px; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #444; background: #121212; color: white; box-sizing: border-box; outline: none; }
         .btn-group { display: flex; gap: 10px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 14px; }
         .mp4 { background: #ff0000; color: white; }
-        .mp3 { background: #444; color: white; }
-        #status { margin-top: 20px; font-size: 14px; }
-        .loader { display: none; border: 3px solid #f3f3f3; border-top: 3px solid #ff0000; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 15px auto; }
+        .mp3 { background: #333; color: white; }
+        #status { margin-top: 20px; font-size: 14px; color: #ff4444; }
+        .loader { display: none; border: 3px solid #333; border-top: 3px solid #ff0000; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .dl-link { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .dl-link { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; width: 100%; box-sizing: border-box; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>YT Downloader</h1>
-        <input type="text" id="url" placeholder="Paste YouTube link here...">
+        <h2>YT Downloader</h2>
+        <p>অ্যান্ড্রয়েড ও পিসির জন্য হাই-স্পিড ডাউনলোডার</p>
+        <input type="text" id="url" placeholder="ভিডিও লিঙ্ক এখানে দিন...">
         <div class="btn-group">
             <button class="mp4" onclick="startDownload('mp4')">Video (MP4)</button>
             <button class="mp3" onclick="startDownload('mp3')">Audio (MP3)</button>
@@ -37,9 +39,9 @@
             const status = document.getElementById('status');
             const loader = document.getElementById('loader');
 
-            if(!url) return alert("Please enter a link!");
+            if(!url) return alert("লিঙ্ক দিন!");
 
-            status.innerHTML = "Processing...";
+            status.innerHTML = "";
             loader.style.display = "block";
 
             try {
@@ -50,12 +52,12 @@
                 });
                 const result = await response.json();
                 if(result.success) {
-                    status.innerHTML = `<a href="${result.download_url}" target="_blank" class="dl-link">Download File</a>`;
+                    status.innerHTML = `<a href="${result.download_url}" target="_blank" class="dl-link">ফাইলটি সেভ করুন</a>`;
                 } else {
-                    status.innerHTML = "Error: " + result.error;
+                    status.innerHTML = "সার্ভার এরর! আবার চেষ্টা করুন।";
                 }
             } catch (err) {
-                status.innerHTML = "Server Error!";
+                status.innerHTML = "কানেকশন এরর!";
             } finally {
                 loader.style.display = "none";
             }
